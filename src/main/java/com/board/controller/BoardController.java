@@ -97,6 +97,8 @@ public class BoardController extends UiUtils {
 			return showMessageWithRedirect("없는 게시글이거나 이미 삭제된 게시글입니다.", "/board/list.do", Method.GET, null, model);
 		}
 		model.addAttribute("board", board);
+		
+		boardService.cntPlus(idx);
 
 		List<AttachDTO> fileList = boardService.getAttachFileList(idx); // 추가된 로직
 		model.addAttribute("fileList", fileList); // 추가된 로직

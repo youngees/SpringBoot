@@ -129,9 +129,9 @@
 					return false;
 				}
 
-				var idx = /*[[ ${board.idx} ]]*/;
+				var idx = /*[[ ${board.idx} ]]*/ null;
 				if (isEmpty(idx) == false) {
-					var queryString = /*[[ ${params.makeQueryString(params.currentPageNo)} ]]*/;
+					var queryString = /*[[ ${params.makeQueryString(params.currentPageNo)} ]]*/ null;
 			
 					/*[- 쿼리 스트링을 오브젝트 형태로 변환 -]*/
 					queryString = new URLSearchParams(queryString);
@@ -144,7 +144,7 @@
 			}
 			/*[- end of function -]*/
 
-			const fileList = /*[[ ${fileList} ]]*/; /*[- 업로드 파일 리스트 -]*/
+			const fileList = /*[[ ${fileList} ]]*/ null; /*[- 업로드 파일 리스트 -]*/
 			let fileIdx = isEmpty(fileList) ? 0 : fileList.length; /*[- 파일 인덱스 처리용 전역 변수 -]*/
 
 			function addFile() {

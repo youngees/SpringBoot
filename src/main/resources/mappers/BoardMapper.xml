@@ -57,6 +57,14 @@
 		WHERE
 			idx = #{idx}
 	</update>
+	
+	<update id="cntPlus" parameterType="Long">
+		UPDATE tb_board
+		SET 
+			view_cnt = view_cnt + 1 
+		WHERE 
+			idx = #{idx}
+	</update>
 
 	<update id="deleteBoard" parameterType="long">
 		UPDATE tb_board

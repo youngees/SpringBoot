@@ -19,7 +19,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 /*
- * @EnableTransactionManagement : 스프링에서 제공하는 어노테이션 기반 트랜잭션을 활성화, 
+ * @EnableTransactionManagement : 스프링에서 제공하는 어노테이션 기반 트랜잭션을 활성화
 */
 
 @Configuration
@@ -67,6 +67,7 @@ public class DBConfiguration {
 		return new org.apache.ibatis.session.Configuration();
 	}
 	
+	//transactionManager : 스프링에서 제공해주는 트랜잭션 매니저를 빈으로 등록한다. 
 	@Bean
 	public PlatformTransactionManager transactionManager() {
 		return new DataSourceTransactionManager(dataSource());

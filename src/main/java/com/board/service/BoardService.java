@@ -14,6 +14,8 @@ public interface BoardService {
 	public boolean registerBoard(BoardDTO params, MultipartFile[] files);
 
 	public BoardDTO getBoardDetail(Long idx);
+	
+	public boolean cntPlus(Long idx);
 
 	public boolean deleteBoard(Long idx);
 

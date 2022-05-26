@@ -18,7 +18,9 @@ public class UiUtils {
 										  @RequestParam(value = "method", required = false) Method method,
 										  @RequestParam(value = "params", required = false) Map<String, Object> params, Model model) {
 
+		//사용자에게 전달할 메세지
 		model.addAttribute("message", message);
+		//리다이렉트 할 URI
 		model.addAttribute("redirectUri", redirectUri);
 		model.addAttribute("method", method);
 		model.addAttribute("params", params);

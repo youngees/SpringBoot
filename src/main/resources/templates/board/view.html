@@ -121,6 +121,10 @@
 		<!-- /.box-content -->
 	</th:block>
 
+	<!--  
+		X-HTTP-Method-Override : REST 방식의 HTTP 요청 메서드 중 PUT, PATCH, DELETE는 브라우저에 따라 지원하지 않는 경우가 있다.
+								웬만해서는 GET, POST 방식만을 지원하기 때문에 해당 속성을 헤더에 지정해준다. 
+	-->
 	<th:block layout:fragment="script">
 		<script th:inline="javascript">
 			/*<![CDATA[*/
@@ -149,7 +153,7 @@
 					return false;
 				}
 
-				var uri = /*[[ @{/comments} ]]*/;
+				var uri =  /*[[ @{/comments} ]]*/ null;
 				var headers = {"Content-Type": "application/json", "X-HTTP-Method-Override": "POST"};
 				var params = {"boardIdx": boardIdx, "content": content.value, "writer": "관리자"};
 
@@ -240,7 +244,7 @@
 
 			function printCommentList() {
 
-				var uri = /*[[ @{/comments/} + ${board.idx} ]]*/;
+				var uri = /*[[ @{/comments/} + ${board.idx} ]]*/ null;
 
 				$.get(uri, function(response) {
 					if (isEmpty(response) == false) {
@@ -266,7 +270,7 @@
 			function deleteBoard(idx, queryString) {
 
 				if (confirm(idx + "번 게시글을 삭제할까요?")) {
-					var uri = /*[[ @{/board/delete.do} ]]*/;
+					var uri = /*[[ @{/board/delete.do} ]]*/ null;
 					var html = "";
 
 					html += '<form name="dataForm" action="'+uri+'" method="post">';

@@ -74,6 +74,11 @@ public class BoardServiceImpl implements BoardService {
 	public BoardDTO getBoardDetail(Long idx) {
 		return boardMapper.selectBoardDetail(idx);
 	}
+	
+	@Override
+	public boolean cntPlus(Long idx) {
+		return boardMapper.cntPlus(idx);
+	}
 
 	@Override
 	public boolean deleteBoard(Long idx) {

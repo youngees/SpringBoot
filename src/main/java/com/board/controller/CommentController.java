@@ -32,6 +32,7 @@ public class CommentController {
 	/*
 	 * RequestBody : 클라이언트가 입력한 것들을 JSON문자열로 전송하면 서버는 JSON문자열을 파라미터로 받는데, RequestBody는 전달받은 JSON 문자열을 객체로 변환한다.
 	 * 				객체로 변환된 JSON은 DTO 클래스의 객체인 params에 매핑된다.  
+	 * @PathVariable : @RequestParam과 유사한 기능, REST 방식에서 리소스를 표현하는데 사용된다. URI에 파라미터로 전달받을 변수를 지정할 수 있다.
 	*/
 	@RequestMapping(value = { "/comments", "/comments/{idx}" }, method = { RequestMethod.POST, RequestMethod.PATCH })
 	public String registerComment(@PathVariable(value = "idx", required = false) Long idx, @RequestBody final CommentDTO params) {
