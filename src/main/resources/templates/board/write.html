@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!-- 
+	xmlns:th => 타임리프의 th 속성을 사용하기위해 선언된 네임스페이스이다. 순수 HTML로만 이루어진 페이지의 경우 선언하지 않아도 무관하다. 
+	xmlns:layout => 타임리프의 레이아웃 기능을 사용하기 위한 선언
+-->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{board/layout/basic}">
+	
+	<!--  
+		th:text => JSP의 EL 표현식인 ${}와 마찬가지로 타임리프도 ${} 표현식을 이용해서 컨트롤러에서 전달받은 데이터에 접근할 수 있다.
+				Ex. <span th:text="${t}">여기는 제목입니다.</span>
+		
+		th:replace => JSP의 include와 태그와 유사한 속성으로 board/fragments/header.html 의 main-head 프레그먼트와 
+					board/fragments/body.html의 main-body프래그먼트를 찾아 해당 코드로 치환한다.
+					
+		th:block layout:fragment => 페이지마다 타이틀을 다르게 처리하고 싶을때 해당 속성을 이용해서 타이틀을 동적으로 처리할 수 있다.
+	-->
+	<th:block layout:fragment="title">
+		<title>thiThe page is a write page</title>
+	</th:block>
+
+	<!--  
+		layout:fragment="content" => 타이틀과 마찬가지로 페이지마다 Content 영역의 형태가 다르기때문에 이용한다. 
+		
+		th:object => JSTL과 비슷하게 사용하지만 ${}이 아닌 *{} 표현식을 사용한다. 
+	-->
+	<th:block layout:fragment="content">
+		<div class="card-content">
+			<form class="form-horizontal" th:action="@{/board/register.do}" th:object="${board}" method="post" enctype="multipart/form-data" onsubmit="return registerBoard(this)">
+				<!--/* update의 경우 서버로 전달할 게시글 번호 (PK) */-->
+				<input type="hidden" th:if="*{idx != null and idx > 0}" th:field="*{idx}" />
+				<!--/* 파일이 변경된 경우, 해당 파라미터를 이용하여 파일 삭제 및 재등록 처리 */-->
+				<input type="hidden" th:field="*{changeYn}" value="N" />
+
+				<div class="form-group">
+					<label for="noticeYn" class="col-sm-2 control-label">공지글 설정</label>
+					<div class="col-sm-10" style="margin-top: 10px;">
+						<input type="checkbox" th:value="*{noticeYn}" id="noticeYn" name="noticeYn" th:checked="*{#strings.equals( noticeYn, 'Y' )}" />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="secretYn" class="col-sm-2 control-label">비밀글 설정</label>
+					<div class="col-sm-10" style="margin-top: 10px;">
+						<input type="checkbox" th:value="*{secretYn}" id="secretYn" name="secretYn" th:checked="*{#strings.equals( secretYn, 'Y' )}" />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="title" class="col-sm-2 control-label">제목</label>
+					<div class="col-sm-10">
+						<input type="text" th:field="*{title}" class="form-control" placeholder="제목을 입력해 주세요." />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="writer" class="col-sm-2 control-label">이름</label>
+					<div class="col-sm-10">
+						<input type="text" th:field="*{writer}" class="form-control" placeholder="이름을 입력해 주세요." />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="content" class="col-sm-2 control-label">내용</label>
+					<div class="col-sm-10">
+						<textarea th:field="*{content}" class="form-control" placeholder="내용을 입력해 주세요."></textarea>
+					</div>
+				</div>
+
+				<!--/* 저장된 파일이 없는 파일 영역 */-->
+				<div th:if="${#lists.isEmpty( fileList )}" data-name="fileDiv" class="form-group filebox bs3-primary">
+					<label for="file_0" class="col-sm-2 control-label">파일1</label>
+					<div class="col-sm-10">
+						<input type="text" class="upload-name" value="파일 찾기" readonly />
+						<label for="file_0" class="control-label">찾아보기</label>
+						<input type="file" name="files" id="file_0" class="upload-hidden" onchange="changeFilename(this)" />
+					
+						<button type="button" onclick="addFile()" class="btn btn-bordered btn-xs visible-xs-inline visible-sm-inline visible-md-inline visible-lg-inline">
+							<i class="fa fa-plus" aria-hidden="true"></i>
+						</button>
+						<button type="button" onclick="removeFile(this)" class="btn btn-bordered btn-xs visible-xs-inline visible-sm-inline visible-md-inline visible-lg-inline">
+							<i class="fa fa-minus" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+				
+				<!--/* 저장된 파일이 있는 파일 영역 */-->
+				<div th:unless="${#lists.isEmpty( fileList )}" th:each="row, status : ${fileList}" data-name="fileDiv" class="form-group filebox bs3-primary">
+					<label th:for="|file_${status.index}|" class="col-sm-2 control-label">[[ |파일${status.count}| ]]</label>
+					<div class="col-sm-10">
+						<input type="hidden" name="fileIdxs" th:value="${row.idx}" />
+						<input type="text" class="upload-name" th:value="${row.originalName}" readonly />
+						<label th:for="|file_${status.index}|" class="control-label">찾아보기</label>
+						<input type="file" name="files" th:id="|file_${status.index}|" class="upload-hidden" onchange="changeFilename(this)" />
+					
+						<button th:if="${status.first}" type="button" onclick="addFile()" class="btn btn-bordered btn-xs visible-xs-inline visible-sm-inline visible-md-inline visible-lg-inline">
+							<i class="fa fa-plus" aria-hidden="true"></i>
+						</button>
+						<button type="button" onclick="removeFile(this)" class="btn btn-bordered btn-xs visible-xs-inline visible-sm-inline visible-md-inline visible-lg-inline">
+							<i class="fa fa-minus" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+
+				<div id="btnDiv" class="btn_wrap text-center" th:object="${params}">
+					<a th:href="|@{/board/list.do}*{makeQueryString(currentPageNo)}|" class="btn btn-default waves-effect waves-light">뒤로가기</a>
+					<button type="submit" class="btn btn-primary waves-effect waves-light">저장하기</button>
+				</div>
+			</form>
+		</div>
+		<!-- /.card-content -->
+	</th:block>
+
+	<th:block layout:fragment="script">
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+
+			function registerBoard(form) {
+
+				form.noticeYn.value = form.noticeYn.checked == false ? 'N' : 'Y';
+				form.secretYn.value = form.secretYn.checked == false ? 'N' : 'Y';
+
+				var result = (
+						   isValid(form.title, "제목", null, null)
+						&& isValid(form.writer, "이름", null, null)
+						&& isValid(form.content, "내용", null, null)
+				);
+			
+				if ( result == false ) {
+					return false;
+				}
+
+				var idx = /*[[ ${board.idx} ]]*/;
+				if (isEmpty(idx) == false) {
+					var queryString = /*[[ ${params.makeQueryString(params.currentPageNo)} ]]*/;
+			
+					/*[- 쿼리 스트링을 오브젝트 형태로 변환 -]*/
+					queryString = new URLSearchParams(queryString);
+					queryString.forEach(function(value, key) {
+						if (isEmpty(value) == false) {
+							$(form).append('<input type="hidden" name="' + key + '" value="' + value + '" />');
+						}
+					});
+				}
+			}
+			/*[- end of function -]*/
+
+			const fileList = /*[[ ${fileList} ]]*/; /*[- 업로드 파일 리스트 -]*/
+			let fileIdx = isEmpty(fileList) ? 0 : fileList.length; /*[- 파일 인덱스 처리용 전역 변수 -]*/
+
+			function addFile() {
+			
+				const fileDivs = $('div[data-name="fileDiv"]');
+				if (fileDivs.length > 2) {
+					alert('파일은 최대 세 개까지 업로드 할 수 있습니다.');
+					return false;
+				}
+			
+				fileIdx++;
+			
+				const fileHtml = `
+					<div data-name="fileDiv" class="form-group filebox bs3-primary">
+						<label for="file_${fileIdx}" class="col-sm-2 control-label"></label>
+						<div class="col-sm-10">
+							<input type="text" class="upload-name" value="파일 찾기" readonly />
+							<label for="file_${fileIdx}" class="control-label">찾아보기</label>
+							<input type="file" name="files" id="file_${fileIdx}" class="upload-hidden" onchange="changeFilename(this)" />
+			
+							<button type="button" onclick="removeFile(this)" class="btn btn-bordered btn-xs visible-xs-inline visible-sm-inline visible-md-inline visible-lg-inline">
+								<i class="fa fa-minus" aria-hidden="true"></i>
+							</button>
+						</div>
+					</div>
+				`;
+			
+				$('#btnDiv').before(fileHtml);
+			}
+
+			/*[- end of function -]*/
+			
+			function removeFile(elem) {
+
+				document.getElementById('changeYn').value = 'Y';
+			
+				const prevTag = $(elem).prev().prop('tagName');
+				if (prevTag === 'BUTTON') {
+					const file = $(elem).prevAll('input[type="file"]');
+					const filename = $(elem).prevAll('input[type="text"]');
+					file.val('');
+					filename.val('파일 찾기');
+			
+					$(elem).prevAll('input[name="fileIdxs"]').remove();
+					return false;
+				}
+			
+				const target = $(elem).parents('div[data-name="fileDiv"]');
+				target.remove();
+			}
+			/*[- end of function -]*/
+
+			function changeFilename(file) {
+
+				document.getElementById('changeYn').value = 'Y';
+			
+				file = $(file);
+				const filename = file[0].files[0].name;
+				const target = file.prevAll('input.upload-name');
+				target.val(filename);
+
+				file.prevAll('input[name="fileIdxs"]').remove();
+			}
+			/*[- end of function -]*/
+
+			/*]]>*/
+		</script>
+	</th:block>
+</html>
